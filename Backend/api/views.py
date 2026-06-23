@@ -297,14 +297,20 @@ def analytics_breakdown_streaks(request):
     if not upload:
         return Response({"error": "No active dataset"}, status=status.HTTP_404_NOT_FOUND)
 
-    gap = request.query_params.get("gap_threshold", 8)
+    gap = request.query_params.get("gap_threshold", 24)
     try:
         gap = float(gap)
     except (ValueError, TypeError):
-        gap = 8
+        gap = 24
+
+    min_events = request.query_params.get("min_events", 2)
+    try:
+        min_events = int(min_events)
+    except (ValueError, TypeError):
+        min_events = 2
 
     days, date_from, date_to = _get_date_params(request)
-    return Response(compute_breakdown_streaks(upload, gap_threshold_hours=gap, days=days, date_from=date_from, date_to=date_to))
+    return Response(compute_breakdown_streaks(upload, gap_threshold_hours=gap, min_events=min_events, days=days, date_from=date_from, date_to=date_to))
 
 
 @api_view(["GET"])

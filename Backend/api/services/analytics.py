@@ -224,7 +224,7 @@ def compute_hourly_activity(upload, days=None, date_from=None, date_to=None):
     return result
 
 
-def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_from=None, date_to=None):
+def compute_breakdown_streaks(upload, gap_threshold_hours=24, min_events=2, days=None, date_from=None, date_to=None):
     """
     Identify breakdown streaks -- clusters of temporally proximate breakdown events.
 
@@ -235,7 +235,8 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_fro
        - If the gap between this event's start and previous event's end
          is <= gap_threshold_hours, extend the current streak
        - Otherwise, close the current streak and start a new one
-    4. Score each streak based on total duration and event count
+    4. Filter streaks to include only clusters with >= min_events events
+    5. Score each streak based on total duration and event count
     """
     from api.models import ShiftRecord
 
@@ -265,6 +266,7 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_fro
                 "worst_severity": 0,
                 "worst_severity_level": "none",
                 "gap_threshold_hours": gap_threshold_hours,
+                "min_events": min_events,
             },
             "algorithm": {
                 "description": (
@@ -273,6 +275,7 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_fro
                     "previous event's end time."
                 ),
                 "gap_threshold_hours": gap_threshold_hours,
+                "min_events": min_events,
                 "severity_formula": "severity = 0.6 * (total_hours / 10) + 0.4 * (event_count / 5), capped at 100",
             },
         }
@@ -300,6 +303,10 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_fro
             }
 
     streaks_raw.append(current)
+
+    # Filter to only clusters with at least min_events
+    if min_events and min_events > 1:
+        streaks_raw = [s for s in streaks_raw if len(s["events"]) >= min_events]
 
     # Score and format each streak
     streaks = []
@@ -350,6 +357,7 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_fro
             "worst_severity": worst["severity_score"] if worst else 0,
             "worst_severity_level": worst["severity_level"] if worst else "none",
             "gap_threshold_hours": gap_threshold_hours,
+            "min_events": min_events,
         },
         "algorithm": {
             "description": (
@@ -358,6 +366,7 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_fro
                 "previous event's end time."
             ),
             "gap_threshold_hours": gap_threshold_hours,
+            "min_events": min_events,
             "severity_formula": "severity = 0.6 * (total_hours / 10) + 0.4 * (event_count / 5), capped at 100",
             "levels": {
                 "critical": "severity >= 70",

@@ -31,6 +31,13 @@ import {
 
 import type { TimeRangeValue } from "@/lib/types"
 import { parseTimeRange } from "@/lib/utils"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface BreakdownStreaksProps {
   timeRange?: TimeRangeValue
@@ -39,15 +46,17 @@ interface BreakdownStreaksProps {
 export function BreakdownStreaks({ timeRange }: BreakdownStreaksProps) {
   const [data, setData] = useState<BreakdownStreakResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [gapThreshold, setGapThreshold] = useState<number>(24)
+  const [minEvents, setMinEvents] = useState<number>(2)
 
   useEffect(() => {
     setIsLoading(true)
     const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
-    api.getBreakdownStreaks(undefined, days, dateFrom, dateTo).then((d) => {
+    api.getBreakdownStreaks(gapThreshold, minEvents, days, dateFrom, dateTo).then((d) => {
       setData(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))
-  }, [timeRange])
+  }, [timeRange, gapThreshold, minEvents])
 
   if (isLoading) {
     return (
@@ -131,12 +140,52 @@ export function BreakdownStreaks({ timeRange }: BreakdownStreaksProps) {
 
       {/* Streak detail table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Streak Details</CardTitle>
-          <CardDescription>
-            Each streak represents a cluster of breakdown events within a
-            {" "}{data.algorithm?.gap_threshold_hours ?? 8}h gap threshold.
-          </CardDescription>
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between space-y-0">
+          <div>
+            <CardTitle>Streak Details</CardTitle>
+            <CardDescription className="mt-1">
+              Cluster of breakdown events (min {data.algorithm?.min_events ?? minEvents} events) within a
+              {" "}{data.algorithm?.gap_threshold_hours ?? gapThreshold}h gap threshold.
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Filter:</span>
+              <Select
+                value={minEvents.toString()}
+                onValueChange={(val) => setMinEvents(Number(val))}
+              >
+                <SelectTrigger className="w-[140px] h-8 text-xs">
+                  <SelectValue placeholder="Min Events" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">≥ 2 Events (Streaks)</SelectItem>
+                  <SelectItem value="1">≥ 1 Event (All)</SelectItem>
+                  <SelectItem value="3">≥ 3 Events</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Gap:</span>
+              <Select
+                value={gapThreshold.toString()}
+                onValueChange={(val) => setGapThreshold(Number(val))}
+              >
+                <SelectTrigger className="w-[100px] h-8 text-xs">
+                  <SelectValue placeholder="Threshold" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">2 Hours</SelectItem>
+                  <SelectItem value="4">4 Hours</SelectItem>
+                  <SelectItem value="8">8 Hours</SelectItem>
+                  <SelectItem value="12">12 Hours</SelectItem>
+                  <SelectItem value="24">24 Hours</SelectItem>
+                  <SelectItem value="48">48 Hours</SelectItem>
+                  <SelectItem value="72">72 Hours</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {(!data.streaks || data.streaks.length === 0) ? (
@@ -207,7 +256,11 @@ export function BreakdownStreaks({ timeRange }: BreakdownStreaksProps) {
             <p>{data.algorithm?.description ?? "Identify breakdown clusters by temporal proximity."}</p>
             <p>
               <strong className="text-foreground">Gap threshold:</strong>{" "}
-              {data.algorithm?.gap_threshold_hours ?? 8} hours between events
+              {data.algorithm?.gap_threshold_hours ?? gapThreshold} hours between events
+            </p>
+            <p>
+              <strong className="text-foreground">Minimum cluster size:</strong>{" "}
+              {data.algorithm?.min_events ?? minEvents} events (isolated single events are excluded when min events &ge; 2)
             </p>
             <p>
               <strong className="text-foreground">Severity formula:</strong>{" "}

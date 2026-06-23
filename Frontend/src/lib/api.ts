@@ -147,9 +147,10 @@ export const api = {
     const qs = params.toString();
     return request<HourlyActivity[]>(`/analytics/hourly-activity/${qs ? `?${qs}` : ""}`);
   },
-  getBreakdownStreaks: (gapThreshold?: number, days?: number, dateFrom?: string, dateTo?: string) => {
+  getBreakdownStreaks: (gapThreshold?: number, minEvents?: number, days?: number, dateFrom?: string, dateTo?: string) => {
     const params = new URLSearchParams();
     if (gapThreshold) params.set("gap_threshold", gapThreshold.toString());
+    if (minEvents) params.set("min_events", minEvents.toString());
     if (days) params.set("days", days.toString());
     if (dateFrom) params.set("date_from", dateFrom);
     if (dateTo) params.set("date_to", dateTo);
