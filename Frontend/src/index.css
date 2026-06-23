@@ -75,6 +75,8 @@
 }
 
 :root {
+    color-scheme: light;
+    --header-height: 3.5rem;
     --background: oklch(0.9777 0.0041 301.4256);
     --foreground: oklch(0.3651 0.0325 287.0807);
     --card: oklch(1.0000 0 0);
@@ -131,6 +133,8 @@
 }
 
 .dark {
+    color-scheme: dark;
+    --header-height: 3.5rem;
     --background: oklch(0.2166 0.0215 292.8474);
     --foreground: oklch(0.9053 0.0245 293.5570);
     --card: oklch(0.2544 0.0301 292.7315);
@@ -196,4 +200,21 @@
   html {
     @apply font-sans;
     }
+
+  /* Thin premium scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground);
+    border-radius: 9999px;
+    opacity: 0.3;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+  }
 }
