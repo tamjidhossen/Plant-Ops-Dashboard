@@ -1,0 +1,18 @@
+{
+  "name": "plant-ops-dashboard",
+  "version": "1.0.0",
+  "description": "Plant Operations Dashboard - Shift Analysis & Operational Insights",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd Backend && ./venv/bin/python manage.py runserver 8000",
+    "dev:frontend": "cd Frontend && npm run dev",
+    "setup": "npm run setup:backend && npm run setup:frontend && npm run migrate",
+    "setup:backend": "cd Backend && python3 -m venv venv && ./venv/bin/pip install -r requirements.txt",
+    "setup:frontend": "cd Frontend && npm install",
+    "migrate": "cd Backend && ./venv/bin/python manage.py migrate"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
