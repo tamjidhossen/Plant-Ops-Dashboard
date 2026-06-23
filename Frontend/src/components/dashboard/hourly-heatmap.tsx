@@ -57,7 +57,7 @@ export function HourlyHeatmap({ timeRange }: HourlyHeatmapProps) {
   })
 
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle>Activity Heatmap</CardTitle>
         <CardDescription>

@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Loader } from "@/components/ui/loader"
+import { InfoIcon } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { api } from "@/lib/api"
 import type { HourlyActivity as HourlyActivityType } from "@/lib/types"
 
@@ -66,11 +68,27 @@ export function HourlyDistributionChart({ timeRange }: HourlyDistributionChartPr
   return (
     <Card className="flex flex-col h-full">
       <CardHeader>
-        <CardTitle>Hourly Event Distribution</CardTitle>
+        <div className="flex items-center gap-1.5">
+          <CardTitle>Hourly Event Distribution</CardTitle>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                <InfoIcon className="size-3.5" />
+                <span className="sr-only">Information</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[280px]">
+              <p>
+                Represents all recorded activities (including Breakdowns, Power Failures,
+                Maintenance, and normal operational tasks) aggregated by their start hour across the selected time period.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <CardDescription>Frequency of events by hour of day</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-4">
-        <ChartContainer config={chartConfig} className="aspect-auto h-[240px] w-full">
+      <CardContent className="flex-1 pb-4 flex flex-col">
+        <ChartContainer config={chartConfig} className="w-full flex-1 min-h-[280px]">
           <BarChart data={hourlyTotals}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
