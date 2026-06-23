@@ -96,19 +96,19 @@ export function ShiftAnalysisChart({ categoryConfig, timeRange }: ShiftAnalysisC
 
   // Chart dimensions
   const chartHeight = 400
-  const chartPadding = { top: 20, right: 20, bottom: 60, left: 60 }
+  const chartPadding = { top: 20, right: 20, bottom: 60, left: 75 }
   const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom
   const minChartWidth = 700
   const width = Math.max(containerWidth, minChartWidth)
   const plotWidth = width - chartPadding.left - chartPadding.right
   const dayWidth = data.length > 0 ? plotWidth / data.length : 50
 
-  // Y-axis: 0 to 1440 minutes (24 hours), displayed as time labels
+  // Y-axis: 0 to 2160 minutes (36 hours), displayed as time labels
   const yScale = (minutes: number) => {
-    return chartPadding.top + ((1440 - minutes) / 1440) * plotHeight
+    return chartPadding.top + ((2160 - minutes) / 2160) * plotHeight
   }
 
-  const timeLabels = [0, 180, 360, 540, 720, 900, 1080, 1260, 1440]
+  const timeLabels = [0, 180, 360, 540, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980, 2160]
 
   return (
     <Card>
@@ -188,14 +188,14 @@ export function ShiftAnalysisChart({ categoryConfig, timeRange }: ShiftAnalysisC
             {timeLabels.map((mins) => {
               const y = yScale(mins)
               const hours = Math.floor(mins / 60)
-              const label =
-                hours === 0
-                  ? "12 AM"
-                  : hours === 12
-                    ? "12 PM"
-                    : hours < 12
-                      ? `${hours} AM`
-                      : `${hours - 12} PM`
+              let label = ""
+              if (hours === 0) label = "12 AM"
+              else if (hours === 12) label = "12 PM"
+              else if (hours === 24) label = "Next 12 AM"
+              else if (hours === 36) label = "Next 12 PM"
+              else if (hours < 12) label = `${hours} AM`
+              else if (hours < 24) label = `${hours - 12} PM`
+              else if (hours < 36) label = `Next ${hours - 24} AM`
 
               return (
                 <g key={mins}>
@@ -237,6 +237,7 @@ export function ShiftAnalysisChart({ categoryConfig, timeRange }: ShiftAnalysisC
                     {new Date(day.date + "T00:00:00").toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
+                      year: "numeric",
                     })}
                   </text>
 

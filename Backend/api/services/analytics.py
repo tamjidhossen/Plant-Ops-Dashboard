@@ -128,7 +128,7 @@ def compute_shift_chart_data(upload, days=None):
 
         # Handle cross-midnight shifts
         if end_minutes <= start_minutes:
-            end_minutes = 24 * 60
+            end_minutes += 24 * 60
 
         by_date[str(rec.day_date)].append({
             "start_minutes": start_minutes,

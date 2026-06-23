@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useTheme } from "@/components/theme-provider"
 import { CSVUpload } from "@/components/explorer/csv-upload"
-import { SunIcon, MoonIcon } from "lucide-react"
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -40,15 +40,7 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const { theme, setTheme } = useTheme()
 
-  const toggleTheme = () => {
-    const resolvedTheme =
-      theme === "system"
-        ? window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light"
-        : theme
-    setTheme(resolvedTheme === "dark" ? "light" : "dark")
-  }
+
 
   // Only show range filters on pages with graphs/metrics
   const showTimeFilter = hasData && ["overview", "shift-analysis", "breakdown-analysis"].includes(activePage)
@@ -93,11 +85,11 @@ export function SiteHeader({
             </div>
           )}
           {hasData && <CSVUpload onUploadComplete={onDataChange} compact />}
-          <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={toggleTheme}>
-            <SunIcon className="size-4 scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
-            <MoonIcon className="absolute size-4 scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <AnimatedThemeToggler
+            theme={theme === "system" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : theme}
+            onThemeChange={(newTheme) => setTheme(newTheme)}
+            className="flex items-center justify-center h-7 w-7 rounded-lg border hover:bg-muted text-foreground transition-colors cursor-pointer [&>svg]:size-4"
+          />
         </div>
       </div>
     </header>
