@@ -9,6 +9,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { UploadIcon, FileSpreadsheetIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 
@@ -68,11 +79,6 @@ export function CSVUpload({ onUploadComplete, compact = false }: CSVUploadProps)
   )
 
   const handleClearDatabase = async () => {
-    const isConfirmed = window.confirm(
-      "Are you sure you want to clear the entire database? This will permanently delete all uploaded datasets, records, and quality reports."
-    )
-    if (!isConfirmed) return
-
     try {
       await api.clearDatabase()
       toast.success("Database cleared successfully", {
@@ -167,15 +173,32 @@ export function CSVUpload({ onUploadComplete, compact = false }: CSVUploadProps)
         <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
           Database Administration
         </p>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={handleClearDatabase}
-          className="cursor-pointer gap-1.5 shadow-sm"
-        >
-          <Trash2Icon className="size-3.5" />
-          Clear Database
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="cursor-pointer gap-1.5 shadow-sm"
+            >
+              <Trash2Icon className="size-3.5" />
+              Clear Database
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Clear Database</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to clear the entire database? This will permanently delete all uploaded datasets, records, and quality reports.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={handleClearDatabase}>
+                Clear Database
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   )

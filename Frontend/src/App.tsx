@@ -53,6 +53,15 @@ export function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (!isLoading && !hasData && activePage !== "upload-csv") {
+      setActivePage("upload-csv")
+      if (window.location.pathname !== "/upload-csv") {
+        window.history.pushState(null, "", "/upload-csv")
+      }
+    }
+  }, [isLoading, hasData, activePage])
+
   const renderPage = () => {
     if (isLoading) {
       return (
@@ -86,7 +95,12 @@ export function App() {
 
   return (
     <SidebarProvider>
-      <AppSidebar activePage={activePage} onNavigate={handleNavigate} variant="inset" />
+      <AppSidebar
+        activePage={activePage}
+        onNavigate={handleNavigate}
+        hasData={hasData}
+        variant="inset"
+      />
       <SidebarInset className="@container/main">
         <SiteHeader
           activePage={activePage}

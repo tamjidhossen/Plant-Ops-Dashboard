@@ -11,6 +11,7 @@ export function NavMain({
   items,
   activePage,
   onNavigate,
+  disabled = false,
 }: {
   items: {
     title: string
@@ -19,6 +20,7 @@ export function NavMain({
   }[]
   activePage: PageId
   onNavigate: (page: PageId) => void
+  disabled?: boolean
 }) {
   return (
     <SidebarGroup>
@@ -30,6 +32,7 @@ export function NavMain({
                 tooltip={item.title}
                 isActive={activePage === item.id}
                 onClick={() => onNavigate(item.id)}
+                disabled={disabled}
               >
                 {item.icon}
                 <span>{item.title}</span>

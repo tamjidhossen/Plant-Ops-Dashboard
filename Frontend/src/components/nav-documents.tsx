@@ -13,6 +13,7 @@ export function NavDocuments({
   items,
   activePage,
   onNavigate,
+  disabledItems = [],
 }: {
   items: {
     name: string
@@ -21,6 +22,7 @@ export function NavDocuments({
   }[]
   activePage: PageId
   onNavigate: (page: PageId) => void
+  disabledItems?: PageId[]
 }) {
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -31,6 +33,7 @@ export function NavDocuments({
             <SidebarMenuButton
               isActive={activePage === item.id}
               onClick={() => onNavigate(item.id)}
+              disabled={disabledItems.includes(item.id)}
             >
               {item.icon}
               <span>{item.name}</span>
