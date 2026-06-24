@@ -138,9 +138,6 @@ dist
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
-Data/
-
 # Python
 __pycache__/
 *.py[cod]
