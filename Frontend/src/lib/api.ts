@@ -20,7 +20,41 @@ import type {
 
 const API_BASE = "/api";
 
+const cache = new Map<string, Promise<any>>();
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const isGet = !options || !options.method || options.method.toUpperCase() === "GET";
+
+  if (isGet) {
+    if (cache.has(url)) {
+      return cache.get(url)!;
+    }
+    const promise = (async () => {
+      try {
+        const res = await fetch(`${API_BASE}${url}`, {
+          headers: { "Content-Type": "application/json", ...options?.headers },
+          ...options,
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || `Request failed: ${res.status}`);
+        }
+
+        if (res.status === 204) return {} as T;
+        return res.json();
+      } catch (err) {
+        cache.delete(url);
+        throw err;
+      }
+    })();
+    cache.set(url, promise);
+    return promise;
+  }
+
+  // Clear cache on mutations (POST, DELETE, PUT, PATCH)
+  cache.clear();
+
   const res = await fetch(`${API_BASE}${url}`, {
     headers: { "Content-Type": "application/json", ...options?.headers },
     ...options,
@@ -38,6 +72,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 export const api = {
   // Upload management
   uploadCSV: async (file: File) => {
+    cache.clear();
     const form = new FormData();
     form.append("file", file);
     const res = await fetch(`${API_BASE}/upload/`, { method: "POST", body: form });
