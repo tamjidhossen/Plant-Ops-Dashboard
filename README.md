@@ -25,6 +25,11 @@ npm run dev
 ```
 Open **[http://localhost:5173](http://localhost:5173)** in your browser to view the application.
 
+### Uploading the Seed Data
+When opening the app for the first time, you will be prompted to upload a dataset:
+*   Click **Select CSV File** on the page.
+*   Browse and select the sample file: **`Data/shift_data.csv`** from the root of this project.
+
 ---
 
 ## Technology Stack
