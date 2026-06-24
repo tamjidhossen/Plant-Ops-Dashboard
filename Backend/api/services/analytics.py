@@ -124,11 +124,8 @@ def compute_shift_chart_data(upload, days=None):
     by_date = defaultdict(list)
     for rec in records:
         start_minutes = rec.start_time.hour * 60 + rec.start_time.minute
-        end_minutes = rec.end_time.hour * 60 + rec.end_time.minute
-
-        # Handle cross-midnight shifts
-        if end_minutes <= start_minutes:
-            end_minutes += 24 * 60
+        duration_minutes = int((rec.end_time - rec.start_time).total_seconds() / 60)
+        end_minutes = start_minutes + duration_minutes
 
         by_date[str(rec.day_date)].append({
             "start_minutes": start_minutes,
