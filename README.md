@@ -1,12 +1,12 @@
-# Plant Operations Dashboard - Renata PLC Developer Assignment
+# Plant Operations Dashboard
 
 A professional-grade, full-stack Plant Operations Dashboard designed to monitor operational efficiency, analyze shift activity timelines, cluster and score equipment breakdown streaks, and report data quality metrics.
 
-Built as a submission for the Renata PLC Software Developer assignment, demonstrating engineering maturity, robust server-side processing, extensible architecture, and high-fidelity data visualization.
+Built to demonstrate best practices, robust server-side processing, extensible architecture, and high-fidelity data visualization.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 *   Python 3.10+
@@ -27,7 +27,7 @@ Open **[http://localhost:5173](http://localhost:5173)** in your browser to view 
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 *   **Backend (Data & Analytics Engine)**:
     *   **Django 5.x**: Robust backend routing, request validation, and database management.
@@ -42,7 +42,7 @@ Open **[http://localhost:5173](http://localhost:5173)** in your browser to view 
 
 ---
 
-## 🌟 Key Engineering Features
+## Key Engineering Features
 
 ### 1. Robust Server-Side Data Cleaning Pipeline
 Evaluates every shift record against a taxonomy of 10 data anomalies (such as negative hours, duration mismatches, invalid months/days, missing timestamps, exact duplicates, and overlapping shifts). It resolves issues logically, logs details for supervisor audit, and saves the cleaned dataset to SQLite. See [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md) for details.
@@ -71,7 +71,7 @@ Includes a configuration-driven categories registry (`api/services/categories.py
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Renata/
