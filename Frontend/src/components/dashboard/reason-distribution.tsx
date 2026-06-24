@@ -18,8 +18,11 @@ import { Loader } from "@/components/ui/loader"
 import { api } from "@/lib/api"
 import type { ReasonDistribution as ReasonDistType } from "@/lib/types"
 
+import type { TimeRangeValue } from "@/lib/types"
+import { parseTimeRange } from "@/lib/utils"
+
 interface ReasonDistributionProps {
-  timeRange?: 3 | 7 | 30 | "all"
+  timeRange?: TimeRangeValue
 }
 
 export function ReasonDistribution({ timeRange }: ReasonDistributionProps) {
@@ -28,8 +31,8 @@ export function ReasonDistribution({ timeRange }: ReasonDistributionProps) {
 
   useEffect(() => {
     setIsLoading(true)
-    const days = timeRange && timeRange !== "all" ? timeRange : undefined
-    api.getReasonDistribution(days).then((d) => {
+    const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
+    api.getReasonDistribution(days, dateFrom, dateTo).then((d) => {
       setData(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))

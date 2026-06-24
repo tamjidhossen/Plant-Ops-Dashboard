@@ -4,12 +4,12 @@ import { OperationalHoursTrend } from "@/components/dashboard/operational-hours-
 import { ReasonDistribution } from "@/components/dashboard/reason-distribution"
 import { DailyEfficiency } from "@/components/dashboard/daily-efficiency"
 import { InsightsPanel } from "@/components/dashboard/insights-panel"
-import type { AnalyticsSummary, CategoryConfig } from "@/lib/types"
+import type { AnalyticsSummary, CategoryConfig, TimeRangeValue } from "@/lib/types"
 
 interface OverviewPageProps {
   summary: AnalyticsSummary | null
   categoryConfig: CategoryConfig | null
-  timeRange: 3 | 7 | 30 | "all"
+  timeRange: TimeRangeValue
 }
 
 export function OverviewPage({ summary, categoryConfig, timeRange }: OverviewPageProps) {

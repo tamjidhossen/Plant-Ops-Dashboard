@@ -15,8 +15,11 @@ import { Loader } from "@/components/ui/loader"
 import { api } from "@/lib/api"
 import type { HourlyActivity as HourlyActivityType } from "@/lib/types"
 
+import type { TimeRangeValue } from "@/lib/types"
+import { parseTimeRange } from "@/lib/utils"
+
 interface HourlyHeatmapProps {
-  timeRange?: 3 | 7 | 30 | "all"
+  timeRange?: TimeRangeValue
 }
 
 export function HourlyHeatmap({ timeRange }: HourlyHeatmapProps) {
@@ -25,8 +28,8 @@ export function HourlyHeatmap({ timeRange }: HourlyHeatmapProps) {
 
   useEffect(() => {
     setIsLoading(true)
-    const days = timeRange && timeRange !== "all" ? timeRange : undefined
-    api.getHourlyActivity(days).then((d) => {
+    const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
+    api.getHourlyActivity(days, dateFrom, dateTo).then((d) => {
       setData(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))

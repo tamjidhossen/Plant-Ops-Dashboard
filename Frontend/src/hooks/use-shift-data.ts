@@ -5,7 +5,9 @@ import type {
   AnalyticsSummary,
   DataUpload,
   CategoryConfig,
+  TimeRangeValue,
 } from "@/lib/types";
+import { parseTimeRange } from "@/lib/utils";
 
 interface ShiftDataState {
   uploads: DataUpload[];
@@ -17,7 +19,7 @@ interface ShiftDataState {
   error: string | null;
 }
 
-export function useShiftData(timeRange?: 3 | 7 | 30 | "all") {
+export function useShiftData(timeRange?: TimeRangeValue) {
   const [state, setState] = useState<ShiftDataState>({
     uploads: [],
     activeUpload: null,
@@ -40,8 +42,8 @@ export function useShiftData(timeRange?: 3 | 7 | 30 | "all") {
       let summary: AnalyticsSummary | null = null;
 
       if (activeUpload) {
-        const days = timeRange && timeRange !== "all" ? timeRange : undefined;
-        summary = await api.getSummary(days);
+        const { days, dateFrom, dateTo } = parseTimeRange(timeRange);
+        summary = await api.getSummary(days, dateFrom, dateTo);
       }
 
       setState({
@@ -68,3 +70,4 @@ export function useShiftData(timeRange?: 3 | 7 | 30 | "all") {
 
   return { ...state, refetch: fetchData };
 }
+

@@ -21,8 +21,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+import type { TimeRangeValue } from "@/lib/types"
+import { parseTimeRange } from "@/lib/utils"
+
 interface HourlyDistributionChartProps {
-  timeRange?: 3 | 7 | 30 | "all"
+  timeRange?: TimeRangeValue
 }
 
 export function HourlyDistributionChart({ timeRange }: HourlyDistributionChartProps) {
@@ -31,8 +34,8 @@ export function HourlyDistributionChart({ timeRange }: HourlyDistributionChartPr
 
   useEffect(() => {
     setIsLoading(true)
-    const days = timeRange && timeRange !== "all" ? timeRange : undefined
-    api.getHourlyActivity(days).then((d) => {
+    const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
+    api.getHourlyActivity(days, dateFrom, dateTo).then((d) => {
       setData(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))

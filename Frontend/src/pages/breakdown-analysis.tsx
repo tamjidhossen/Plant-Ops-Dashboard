@@ -1,7 +1,8 @@
 import { BreakdownStreaks } from "@/components/dashboard/breakdown-streaks"
+import type { TimeRangeValue } from "@/lib/types"
 
 interface BreakdownAnalysisPageProps {
-  timeRange: 3 | 7 | 30 | "all"
+  timeRange: TimeRangeValue
 }
 
 export function BreakdownAnalysisPage({ timeRange }: BreakdownAnalysisPageProps) {

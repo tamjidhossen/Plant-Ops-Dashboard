@@ -29,8 +29,11 @@ import {
   ActivityIcon,
 } from "lucide-react"
 
+import type { TimeRangeValue } from "@/lib/types"
+import { parseTimeRange } from "@/lib/utils"
+
 interface BreakdownStreaksProps {
-  timeRange?: 3 | 7 | 30 | "all"
+  timeRange?: TimeRangeValue
 }
 
 export function BreakdownStreaks({ timeRange }: BreakdownStreaksProps) {
@@ -39,8 +42,8 @@ export function BreakdownStreaks({ timeRange }: BreakdownStreaksProps) {
 
   useEffect(() => {
     setIsLoading(true)
-    const days = timeRange && timeRange !== "all" ? timeRange : undefined
-    api.getBreakdownStreaks(undefined, days).then((d) => {
+    const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
+    api.getBreakdownStreaks(undefined, days, dateFrom, dateTo).then((d) => {
       setData(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))

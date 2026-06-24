@@ -13,9 +13,13 @@ from django.db.models import Sum, Count, Q, F
 from .categories import is_productive, DOWNTIME_REASONS, get_color_for_reason, get_all_category_info
 
 
-def _filter_records(records, days=None):
-    """Filter records by the last N days relative to the max date in the active dataset."""
-    if days is not None:
+def _filter_records(records, days=None, date_from=None, date_to=None):
+    """Filter records by the last N days or a specific date range."""
+    if date_from:
+        records = records.filter(day_date__gte=date_from)
+    if date_to:
+        records = records.filter(day_date__lte=date_to)
+    if days is not None and not date_from and not date_to:
         from django.db.models import Max
         max_res = records.aggregate(max_d=Max("day_date"))
         max_date = max_res["max_d"]
@@ -33,12 +37,18 @@ def _get_max_date(upload):
 
 
 
-def compute_summary(upload, days=None):
+def compute_summary(upload, days=None, date_from=None, date_to=None):
     """Compute KPI summary metrics for an upload."""
     from api.models import ShiftRecord
+    from django.db.models import Max, Min
 
     records = ShiftRecord.objects.filter(upload=upload, is_duplicate=False)
-    records = _filter_records(records, days=days)
+    
+    dates_res = records.aggregate(max_d=Max("day_date"), min_d=Min("day_date"))
+    max_date_val = dates_res["max_d"]
+    min_date_val = dates_res["min_d"]
+
+    records = _filter_records(records, days=days, date_from=date_from, date_to=date_to)
     valid = records.exclude(duration_hours__isnull=True)
 
     total_hours = valid.aggregate(total=Sum("duration_hours"))["total"] or 0
@@ -65,17 +75,19 @@ def compute_summary(upload, days=None):
         "breakdown_count": breakdown_qs.count(),
         "unique_categories": len(unique_reasons),
         "category_list": unique_reasons,
+        "max_date": max_date_val.strftime("%Y-%m-%d") if max_date_val else None,
+        "min_date": min_date_val.strftime("%Y-%m-%d") if min_date_val else None,
     }
 
 
-def compute_daily_metrics(upload, days=None):
+def compute_daily_metrics(upload, days=None, date_from=None, date_to=None):
     """Compute per-day aggregated metrics."""
     from api.models import ShiftRecord
 
     records = ShiftRecord.objects.filter(
         upload=upload, is_duplicate=False, day_date__isnull=False, duration_hours__isnull=False
     )
-    records = _filter_records(records, days=days)
+    records = _filter_records(records, days=days, date_from=date_from, date_to=date_to)
 
     daily = defaultdict(lambda: {"total": 0.0, "productive": 0.0, "downtime": 0.0, "events": 0})
 
@@ -104,7 +116,7 @@ def compute_daily_metrics(upload, days=None):
     return result
 
 
-def compute_shift_chart_data(upload, days=None):
+def compute_shift_chart_data(upload, days=None, date_from=None, date_to=None):
     """
     Prepare data for the shift analysis chart.
     Returns segments grouped by date with time-of-day positioning.
@@ -118,7 +130,7 @@ def compute_shift_chart_data(upload, days=None):
         start_time__isnull=False,
         end_time__isnull=False,
     )
-    records = _filter_records(records, days=days)
+    records = _filter_records(records, days=days, date_from=date_from, date_to=date_to)
     records = records.order_by("day_date", "start_time")
 
     by_date = defaultdict(list)
@@ -147,14 +159,14 @@ def compute_shift_chart_data(upload, days=None):
     return result
 
 
-def compute_reason_distribution(upload, days=None):
+def compute_reason_distribution(upload, days=None, date_from=None, date_to=None):
     """Compute hours distribution by reason."""
     from api.models import ShiftRecord
 
     records = ShiftRecord.objects.filter(
         upload=upload, is_duplicate=False, duration_hours__isnull=False
     )
-    records = _filter_records(records, days=days)
+    records = _filter_records(records, days=days, date_from=date_from, date_to=date_to)
 
     dist = records.values("reason").annotate(
         total_hours=Sum("duration_hours"),
@@ -175,7 +187,7 @@ def compute_reason_distribution(upload, days=None):
     ]
 
 
-def compute_hourly_activity(upload, days=None):
+def compute_hourly_activity(upload, days=None, date_from=None, date_to=None):
     """Compute hourly activity grid for heatmap visualization."""
     from api.models import ShiftRecord
 
@@ -185,7 +197,7 @@ def compute_hourly_activity(upload, days=None):
         start_time__isnull=False,
         day_date__isnull=False,
     )
-    records = _filter_records(records, days=days)
+    records = _filter_records(records, days=days, date_from=date_from, date_to=date_to)
 
     grid = defaultdict(lambda: defaultdict(int))
     reasons_at = defaultdict(lambda: defaultdict(list))
@@ -212,7 +224,7 @@ def compute_hourly_activity(upload, days=None):
     return result
 
 
-def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None):
+def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None, date_from=None, date_to=None):
     """
     Identify breakdown streaks -- clusters of temporally proximate breakdown events.
 
@@ -233,7 +245,11 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None):
         is_duplicate=False,
         start_time__isnull=False,
     )
-    if days is not None:
+    if date_from:
+        breakdowns_qs = breakdowns_qs.filter(day_date__gte=date_from)
+    if date_to:
+        breakdowns_qs = breakdowns_qs.filter(day_date__lte=date_to)
+    if days is not None and not date_from and not date_to:
         max_date = _get_max_date(upload)
         if max_date:
             start_date = max_date - timedelta(days=days - 1)
@@ -352,12 +368,12 @@ def compute_breakdown_streaks(upload, gap_threshold_hours=8, days=None):
     }
 
 
-def generate_insights(upload, days=None):
+def generate_insights(upload, days=None, date_from=None, date_to=None):
     """Generate dynamic operational insights from the data."""
     from api.models import ShiftRecord
 
     records = ShiftRecord.objects.filter(upload=upload, is_duplicate=False)
-    records = _filter_records(records, days=days)
+    records = _filter_records(records, days=days, date_from=date_from, date_to=date_to)
     valid = records.filter(duration_hours__isnull=False)
     insights = []
 

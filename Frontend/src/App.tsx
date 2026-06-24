@@ -13,7 +13,7 @@ import { BreakdownAnalysisPage } from "@/pages/breakdown-analysis"
 import { DataExplorerPage } from "@/pages/data-explorer"
 import { DataQualityPage } from "@/pages/data-quality"
 
-import type { PageId } from "@/lib/types"
+import type { PageId, TimeRangeValue } from "@/lib/types"
 
 const getPageFromPath = (): PageId => {
   const path = window.location.pathname.replace(/^\//, "")
@@ -30,7 +30,7 @@ const getPageFromPath = (): PageId => {
 
 export function App() {
   const [activePage, setActivePage] = useState<PageId>(getPageFromPath)
-  const [timeRange, setTimeRange] = useState<3 | 7 | 30 | "all">("all")
+  const [timeRange, setTimeRange] = useState<TimeRangeValue>("all")
   
   const { hasData, isLoading, summary, categoryConfig, refetch } =
     useShiftData(timeRange)
@@ -108,6 +108,7 @@ export function App() {
           onDataChange={refetch}
           timeRange={timeRange}
           onTimeRangeChange={setTimeRange}
+          summary={summary}
         />
         <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
           {renderPage()}

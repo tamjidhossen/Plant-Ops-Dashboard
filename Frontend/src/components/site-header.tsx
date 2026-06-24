@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useTheme } from "@/components/theme-provider"
@@ -11,7 +12,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import type { PageId } from "@/lib/types"
+import type { PageId, TimeRangeValue, AnalyticsSummary } from "@/lib/types"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from "lucide-react"
+import { subDays, format } from "date-fns"
+import { type DateRange } from "react-day-picker"
 
 const PAGE_TITLES: Record<PageId, string> = {
   "overview": "Overview",
@@ -26,8 +32,9 @@ interface SiteHeaderProps {
   activePage: PageId
   hasData: boolean
   onDataChange: () => void
-  timeRange: 3 | 7 | 30 | "all"
-  onTimeRangeChange: (range: 3 | 7 | 30 | "all") => void
+  timeRange: TimeRangeValue
+  onTimeRangeChange: (range: TimeRangeValue) => void
+  summary?: AnalyticsSummary | null
 }
 
 export function SiteHeader({
@@ -36,13 +43,18 @@ export function SiteHeader({
   onDataChange,
   timeRange,
   onTimeRangeChange,
+  summary,
 }: SiteHeaderProps) {
   const { theme, setTheme } = useTheme()
-
-
+  const [popoverOpen, setPopoverOpen] = useState(false)
 
   // Only show range filters on pages with graphs/metrics
   const showTimeFilter = hasData && ["overview", "shift-analysis", "breakdown-analysis"].includes(activePage)
+
+  // Calculate default range (last 7 days of active dataset or today)
+  const maxDate = summary?.max_date ? new Date(summary.max_date + "T00:00:00") : new Date()
+  const defaultFrom = subDays(maxDate, 6)
+  const defaultTo = maxDate
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -67,7 +79,7 @@ export function SiteHeader({
         </Breadcrumb>
         <div className="ml-auto flex items-center gap-3">
           {showTimeFilter && (
-            <div className="flex items-center bg-muted/65 p-0.5 rounded-lg border border-border text-[11px] h-7">
+            <div className="flex items-center bg-muted/65 p-0.5 rounded-lg border border-border text-[11px] h-7 gap-0.5">
               {([3, 7, 30, "all"] as const).map((range) => (
                 <button
                   key={range}
@@ -81,6 +93,54 @@ export function SiteHeader({
                   {range === "all" ? "All" : `${range}D`}
                 </button>
               ))}
+
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    onClick={() => {
+                      const isCustom = timeRange && typeof timeRange === "object";
+                      if (!isCustom) {
+                        onTimeRangeChange({ from: defaultFrom, to: defaultTo });
+                      }
+                    }}
+                    className={`h-full px-2.5 rounded-md font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                      timeRange && typeof timeRange === "object"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <CalendarIcon className="h-3 w-3 shrink-0" />
+                    {timeRange && typeof timeRange === "object" ? (
+                      timeRange.from ? (
+                        timeRange.to ? (
+                          <span className="text-[10px] whitespace-nowrap">
+                            {format(timeRange.from, "MMM d")} - {format(timeRange.to, "MMM d")}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] whitespace-nowrap">
+                            {format(timeRange.from, "MMM d")}
+                          </span>
+                        )
+                      ) : (
+                        <span>Range</span>
+                      )
+                    ) : null}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="range"
+                    defaultMonth={timeRange && typeof timeRange === "object" ? timeRange.from : defaultFrom}
+                    selected={timeRange && typeof timeRange === "object" ? timeRange as DateRange : undefined}
+                    onSelect={(range) => {
+                      if (range) {
+                        onTimeRangeChange(range);
+                      }
+                    }}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           )}
           {hasData && <CSVUpload onUploadComplete={onDataChange} compact />}
@@ -94,3 +154,4 @@ export function SiteHeader({
     </header>
   )
 }
+

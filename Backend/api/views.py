@@ -228,12 +228,16 @@ def list_records(request):
 
 # -- Analytics endpoints --
 
-def _get_days_param(request):
-    """Helper to parse 'days' query parameter as an integer."""
+def _get_date_params(request):
+    """Helper to parse 'days', 'date_from', and 'date_to' query parameters."""
     days = request.query_params.get("days")
     if days and days.isdigit():
-        return int(days)
-    return None
+        days = int(days)
+    else:
+        days = None
+    date_from = request.query_params.get("date_from")
+    date_to = request.query_params.get("date_to")
+    return days, date_from, date_to
 
 
 @api_view(["GET"])
@@ -242,8 +246,8 @@ def analytics_summary(request):
     upload = _get_active_upload()
     if not upload:
         return Response({"error": "No active dataset"}, status=status.HTTP_404_NOT_FOUND)
-    days = _get_days_param(request)
-    return Response(compute_summary(upload, days=days))
+    days, date_from, date_to = _get_date_params(request)
+    return Response(compute_summary(upload, days=days, date_from=date_from, date_to=date_to))
 
 
 @api_view(["GET"])
@@ -252,8 +256,8 @@ def analytics_daily(request):
     upload = _get_active_upload()
     if not upload:
         return Response({"error": "No active dataset"}, status=status.HTTP_404_NOT_FOUND)
-    days = _get_days_param(request)
-    return Response(compute_daily_metrics(upload, days=days))
+    days, date_from, date_to = _get_date_params(request)
+    return Response(compute_daily_metrics(upload, days=days, date_from=date_from, date_to=date_to))
 
 
 @api_view(["GET"])
@@ -262,8 +266,8 @@ def analytics_shift_chart(request):
     upload = _get_active_upload()
     if not upload:
         return Response({"error": "No active dataset"}, status=status.HTTP_404_NOT_FOUND)
-    days = _get_days_param(request)
-    return Response(compute_shift_chart_data(upload, days=days))
+    days, date_from, date_to = _get_date_params(request)
+    return Response(compute_shift_chart_data(upload, days=days, date_from=date_from, date_to=date_to))
 
 
 @api_view(["GET"])
@@ -272,8 +276,8 @@ def analytics_reason_distribution(request):
     upload = _get_active_upload()
     if not upload:
         return Response({"error": "No active dataset"}, status=status.HTTP_404_NOT_FOUND)
-    days = _get_days_param(request)
-    return Response(compute_reason_distribution(upload, days=days))
+    days, date_from, date_to = _get_date_params(request)
+    return Response(compute_reason_distribution(upload, days=days, date_from=date_from, date_to=date_to))
 
 
 @api_view(["GET"])
@@ -282,8 +286,8 @@ def analytics_hourly_activity(request):
     upload = _get_active_upload()
     if not upload:
         return Response({"error": "No active dataset"}, status=status.HTTP_404_NOT_FOUND)
-    days = _get_days_param(request)
-    return Response(compute_hourly_activity(upload, days=days))
+    days, date_from, date_to = _get_date_params(request)
+    return Response(compute_hourly_activity(upload, days=days, date_from=date_from, date_to=date_to))
 
 
 @api_view(["GET"])
@@ -299,8 +303,8 @@ def analytics_breakdown_streaks(request):
     except (ValueError, TypeError):
         gap = 8
 
-    days = _get_days_param(request)
-    return Response(compute_breakdown_streaks(upload, gap_threshold_hours=gap, days=days))
+    days, date_from, date_to = _get_date_params(request)
+    return Response(compute_breakdown_streaks(upload, gap_threshold_hours=gap, days=days, date_from=date_from, date_to=date_to))
 
 
 @api_view(["GET"])
@@ -309,8 +313,8 @@ def analytics_insights(request):
     upload = _get_active_upload()
     if not upload:
         return Response({"error": "No active dataset"}, status=status.HTTP_404_NOT_FOUND)
-    days = _get_days_param(request)
-    return Response(generate_insights(upload, days=days))
+    days, date_from, date_to = _get_date_params(request)
+    return Response(generate_insights(upload, days=days, date_from=date_from, date_to=date_to))
 
 
 # -- Quality report --

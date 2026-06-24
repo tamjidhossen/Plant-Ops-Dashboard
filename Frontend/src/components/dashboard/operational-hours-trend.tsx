@@ -48,8 +48,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+import type { TimeRangeValue } from "@/lib/types"
+import { parseTimeRange } from "@/lib/utils"
+
 interface OperationalHoursTrendProps {
-  timeRange?: 3 | 7 | 30 | "all"
+  timeRange?: TimeRangeValue
 }
 
 export function OperationalHoursTrend({ timeRange }: OperationalHoursTrendProps) {
@@ -63,8 +66,8 @@ export function OperationalHoursTrend({ timeRange }: OperationalHoursTrendProps)
 
   useEffect(() => {
     setIsLoading(true)
-    const days = timeRange && timeRange !== "all" ? timeRange : undefined
-    api.getDailyMetrics(days).then((d) => {
+    const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
+    api.getDailyMetrics(days, dateFrom, dateTo).then((d) => {
       setData(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))

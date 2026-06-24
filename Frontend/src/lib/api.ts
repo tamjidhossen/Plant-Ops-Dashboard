@@ -107,36 +107,62 @@ export const api = {
   },
 
   // Analytics
-  getSummary: (days?: number) => {
-    const qs = days ? `?days=${days}` : "";
-    return request<AnalyticsSummary>(`/analytics/summary/${qs}`);
+  getSummary: (days?: number, dateFrom?: string, dateTo?: string) => {
+    const params = new URLSearchParams();
+    if (days) params.set("days", days.toString());
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
+    const qs = params.toString();
+    return request<AnalyticsSummary>(`/analytics/summary/${qs ? `?${qs}` : ""}`);
   },
-  getDailyMetrics: (days?: number) => {
-    const qs = days ? `?days=${days}` : "";
-    return request<DailyMetric[]>(`/analytics/daily/${qs}`);
+  getDailyMetrics: (days?: number, dateFrom?: string, dateTo?: string) => {
+    const params = new URLSearchParams();
+    if (days) params.set("days", days.toString());
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
+    const qs = params.toString();
+    return request<DailyMetric[]>(`/analytics/daily/${qs ? `?${qs}` : ""}`);
   },
-  getShiftChartData: (days?: number) => {
-    const qs = days ? `?days=${days}` : "";
-    return request<ShiftChartDay[]>(`/analytics/shift-chart/${qs}`);
+  getShiftChartData: (days?: number, dateFrom?: string, dateTo?: string) => {
+    const params = new URLSearchParams();
+    if (days) params.set("days", days.toString());
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
+    const qs = params.toString();
+    return request<ShiftChartDay[]>(`/analytics/shift-chart/${qs ? `?${qs}` : ""}`);
   },
-  getReasonDistribution: (days?: number) => {
-    const qs = days ? `?days=${days}` : "";
-    return request<ReasonDistribution[]>(`/analytics/reason-distribution/${qs}`);
+  getReasonDistribution: (days?: number, dateFrom?: string, dateTo?: string) => {
+    const params = new URLSearchParams();
+    if (days) params.set("days", days.toString());
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
+    const qs = params.toString();
+    return request<ReasonDistribution[]>(`/analytics/reason-distribution/${qs ? `?${qs}` : ""}`);
   },
-  getHourlyActivity: (days?: number) => {
-    const qs = days ? `?days=${days}` : "";
-    return request<HourlyActivity[]>(`/analytics/hourly-activity/${qs}`);
+  getHourlyActivity: (days?: number, dateFrom?: string, dateTo?: string) => {
+    const params = new URLSearchParams();
+    if (days) params.set("days", days.toString());
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
+    const qs = params.toString();
+    return request<HourlyActivity[]>(`/analytics/hourly-activity/${qs ? `?${qs}` : ""}`);
   },
-  getBreakdownStreaks: (gapThreshold?: number, days?: number) => {
+  getBreakdownStreaks: (gapThreshold?: number, days?: number, dateFrom?: string, dateTo?: string) => {
     const params = new URLSearchParams();
     if (gapThreshold) params.set("gap_threshold", gapThreshold.toString());
     if (days) params.set("days", days.toString());
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
     const qs = params.toString();
     return request<BreakdownStreakResponse>(`/analytics/breakdown-streaks/${qs ? `?${qs}` : ""}`);
   },
-  getInsights: (days?: number) => {
-    const qs = days ? `?days=${days}` : "";
-    return request<OperationalInsight[]>(`/analytics/insights/${qs}`);
+  getInsights: (days?: number, dateFrom?: string, dateTo?: string) => {
+    const params = new URLSearchParams();
+    if (days) params.set("days", days.toString());
+    if (dateFrom) params.set("date_from", dateFrom);
+    if (dateTo) params.set("date_to", dateTo);
+    const qs = params.toString();
+    return request<OperationalInsight[]>(`/analytics/insights/${qs ? `?${qs}` : ""}`);
   },
 
   // Quality

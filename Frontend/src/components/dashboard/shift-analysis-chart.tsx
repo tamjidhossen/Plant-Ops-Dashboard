@@ -15,9 +15,12 @@ import {
 import { api } from "@/lib/api"
 import type { ShiftChartDay, CategoryConfig } from "@/lib/types"
 
+import type { TimeRangeValue } from "@/lib/types"
+import { parseTimeRange } from "@/lib/utils"
+
 interface ShiftAnalysisChartProps {
   categoryConfig: CategoryConfig | null
-  timeRange?: 3 | 7 | 30 | "all"
+  timeRange?: TimeRangeValue
 }
 
 export function ShiftAnalysisChart({ categoryConfig, timeRange }: ShiftAnalysisChartProps) {
@@ -31,8 +34,8 @@ export function ShiftAnalysisChart({ categoryConfig, timeRange }: ShiftAnalysisC
 
   useEffect(() => {
     setIsLoading(true)
-    const days = timeRange && timeRange !== "all" ? timeRange : undefined
-    api.getShiftChartData(days).then((d) => {
+    const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
+    api.getShiftChartData(days, dateFrom, dateTo).then((d) => {
       setData(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))

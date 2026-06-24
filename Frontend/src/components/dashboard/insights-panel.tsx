@@ -29,8 +29,11 @@ const categoryStyles: Record<string, string> = {
   analysis: "border-blue-500/20 bg-blue-500/5",
 }
 
+import type { TimeRangeValue } from "@/lib/types"
+import { parseTimeRange } from "@/lib/utils"
+
 interface InsightsPanelProps {
-  timeRange?: 3 | 7 | 30 | "all"
+  timeRange?: TimeRangeValue
 }
 
 export function InsightsPanel({ timeRange }: InsightsPanelProps) {
@@ -39,8 +42,8 @@ export function InsightsPanel({ timeRange }: InsightsPanelProps) {
 
   useEffect(() => {
     setIsLoading(true)
-    const days = timeRange && timeRange !== "all" ? timeRange : undefined
-    api.getInsights(days).then((d) => {
+    const { days, dateFrom, dateTo } = parseTimeRange(timeRange)
+    api.getInsights(days, dateFrom, dateTo).then((d) => {
       setInsights(d)
       setIsLoading(false)
     }).catch(() => setIsLoading(false))

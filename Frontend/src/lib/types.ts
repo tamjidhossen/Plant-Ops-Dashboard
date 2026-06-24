@@ -42,6 +42,8 @@ export interface AnalyticsSummary {
   breakdown_count: number;
   unique_categories: number;
   category_list: string[];
+  max_date?: string;
+  min_date?: string;
 }
 
 export interface DailyMetric {
@@ -170,3 +172,10 @@ export type PageId =
   | "data-explorer"
   | "data-quality"
   | "upload-csv";
+
+export interface CustomDateRange {
+  from?: Date;
+  to?: Date;
+}
+
+export type TimeRangeValue = 3 | 7 | 30 | "all" | CustomDateRange;

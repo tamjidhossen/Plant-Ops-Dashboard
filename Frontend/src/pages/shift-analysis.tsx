@@ -1,11 +1,11 @@
 import { ShiftAnalysisChart } from "@/components/dashboard/shift-analysis-chart"
 import { HourlyHeatmap } from "@/components/dashboard/hourly-heatmap"
 import { HourlyDistributionChart } from "@/components/dashboard/hourly-distribution-chart"
-import type { CategoryConfig } from "@/lib/types"
+import type { CategoryConfig, TimeRangeValue } from "@/lib/types"
 
 interface ShiftAnalysisPageProps {
   categoryConfig: CategoryConfig | null
-  timeRange: 3 | 7 | 30 | "all"
+  timeRange: TimeRangeValue
 }
 
 export function ShiftAnalysisPage({ categoryConfig, timeRange }: ShiftAnalysisPageProps) {
