@@ -39,6 +39,8 @@ Open **[http://localhost:5173](http://localhost:5173)** in your browser to view 
     *   **shadcn/ui**: Modern, accessible UI components styled with Vanilla CSS.
     *   **Recharts**: Declarative, responsive charting library for data visualization.
     *   **Lucide React**: Clean, modern iconography system (no emojis used in UI or code comments).
+    *   **View Transitions API**: Smooth, native theme toggle animations.
+    *   **API Request Caching**: Transparent cache layers to reduce duplicate backend queries.
 
 ---
 
@@ -63,11 +65,16 @@ Computes 6 distinct operational insights from the uploaded dataset rather than d
 Includes a configuration-driven categories registry (`api/services/categories.py`). Activity reasons are mapped dynamically to groups (productive, downtime, planned stop, external, other). Any newly introduced reason in the CSV is automatically categorized as `"uncategorized"` and styled with neutral shades, ensuring the dashboard never crashes.
 
 ### 5. Multi-View Dashboard Layout
-*   **Overview**: Summary cards (KPIs), the primary Shift Analysis gantt chart, activity distributions, and operational insights.
+*   **Overview**: Summary cards (KPIs), the primary Shift Analysis gantt chart, the **Operational Hours Trend** chart, activity distributions, and operational insights.
 *   **Shift Analysis**: Interactive timeline charts and hourly event concentration heatmaps.
 *   **Breakdown Streaks**: Visualizes streaks, durations, and outputs algorithm configurations.
 *   **Data Explorer**: A sortable grid of raw records with date/reason/category filtering and client-side CSV export.
 *   **Data Quality**: A first-class audit report detailing all flagged issues, original vs resolved values, and applied corrections.
+
+### 6. Interactive UX & Safe Administration
+*   **Zero-Data State Navigation**: Automatically disables dashboard sidebar navigation links except "Upload CSV" when no active dataset is present, preventing empty pages.
+*   **Shadcn AlertDialog**: Safe administration features (e.g. database clearing) are secured via modern, accessible modal alerts rather than default browser prompts.
+*   **View Transitions Toggler**: Seamless theme sweep animations for a premium user experience.
 
 ---
 
